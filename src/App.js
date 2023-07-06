@@ -1,21 +1,30 @@
-import { useEffect, useState, memo, useCallback, useRef } from 'react';
+import { useEffect, useState, memo, useCallback, useMemo } from 'react';
 import './App.css';
 
-const TextBlock = memo(() => {
+const TextBlock = memo(({ stateParent }) => {
   useEffect(() => {console.log('Render TextBlock')})
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setCount(stateParent / 2)
+  }, [stateParent])
+
+  const countda = useMemo(() =>{
+    return stateParent / 2
+  }, [stateParent])
 
   return (
     <div className="TextBlock" style={{ background: 'grey'}}>
       <p>
         TextBlock
       </p>
+      <p>ИТОГ: {count}</p>
     </div>
   );
 })
 
 const CounterBlock = memo(({ addCountParent }) => {
   const [count, setCount] = useState(0);
-  const countRef = useRef();
 
   useEffect(() => {console.log('Render CounterBlock')})
 
@@ -24,11 +33,7 @@ const CounterBlock = memo(({ addCountParent }) => {
       <p>
         CHILDREN block: {count}
       </p>
-      {countRef.current % 2 === 0 && (
-        <TextBlock />
-      )}
       <button onClick={() => {setCount(prev => ++prev)}}>Add count CHILDREN</button>
-      <button onClick={() => {countRef.current = countRef.current + 1 }}>Add count REF</button>
       <button onClick={addCountParent}>Add count PARENT</button>
     </div>
   );
@@ -51,6 +56,7 @@ const App = () => {
       <div>
         <button onClick={() => setCount(prev => ++prev)}>Add count PARENT</button>
       </div>
+      <TextBlock stateParent={count} />
       <CounterBlock addCountParent={setParentFromChildren} />
     </div>
   );
